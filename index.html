@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calculadora Rosa Profissional</title>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Fontes do Google: Plus Jakarta Sans & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    .font-mono-custom {
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* Efeito de clique no botão (Keyboard & Touch Feedback) */
+    .btn-active {
+      transform: scale(0.93) !important;
+      filter: brightness(1.3) !important;
+    }
+
+    /* Transições suaves e desativação de seleção acidental */
+    .btn-calc {
+      transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .btn-calc:active {
+      transform: scale(0.95);
+    }
+
+    /* Estilização da barra de rolagem do visor */
+    .scrollbar-none::-webkit-scrollbar {
+      display: none;
+    }
+    .scrollbar-none {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+  </style>
+</head>
+
+<body class="bg-gradient-to-br from-pink-950 via-rose-900 to-fuchsia-950 min-h-screen flex items-center justify-center p-4">
+
+  <div class="w-full max-w-sm bg-rose-950/70 backdrop-blur-2xl rounded-3xl p-6 shadow-2xl border border-pink-500/20 flex flex-col gap-5">
+    
+    <!-- Topbar com ícone e etiqueta de status -->
+    <div class="flex items-center justify-between px-1 text-pink-300/80 text-xs font-semibold tracking-wider uppercase">
+      <span class="flex items-center gap-2">
+        <i data-lucide="calculator" class="w-4 h-4 text-pink-400"></i>
+        <span>Calculadora Rosa</span>
+      </span>
+      <span class="bg-pink-500/10 text-pink-300 border border-pink-500/20 px-2.5 py-0.5 rounded-full text-[10px] font-bold">
+        ES6 + Keyboard
+      </span>
+    </div>
+
+    <!-- Visor da Calculadora (Histórico + Digitação Ativa) -->
+    <div class="bg-slate-950/70 rounded-2xl p-4 flex flex-col justify-end items-end min-h-[120px] border border-pink-500/20 shadow-inner overflow-hidden">
+      <!-- Histórico superior -->
+      <div id="history" class="text-pink-300/60 font-mono-custom text-sm font-medium tracking-wide min-h-[22px] overflow-x-auto max-w-full whitespace-nowrap scrollbar-none"></div>
+      <!-- Display principal -->
+      <div id="display" class="text-4xl font-mono-custom font-bold text-white tracking-wider overflow-x-auto max-w-full whitespace-nowrap scrollbar-none mt-1">0</div>
+    </div>
+
+    <!-- Teclado Numérico e de Operações (Grid de 4 colunas) -->
+    <div class="grid grid-cols-4 gap-3">
+      <!-- Linha 1 -->
+      <button data-action="clear" class="btn-calc bg-rose-500/25 text-rose-200 hover:bg-rose-500/35 active:bg-rose-500/50 border border-rose-500/30 p-4 rounded-2xl font-bold text-base flex items-center justify-center">
+        AC
+      </button>
+      <button data-action="backspace" class="btn-calc bg-pink-900/40 text-pink-200 hover:bg-pink-800/50 border border-pink-500/20 p-4 rounded-2xl font-bold text-base flex items-center justify-center">
+        <i data-lucide="delete" class="w-5 h-5"></i>
+      </button>
+      <button data-action="percent" class="btn-calc bg-pink-900/40 text-pink-200 hover:bg-pink-800/50 border border-pink-500/20 p-4 rounded-2xl font-bold text-lg flex items-center justify-center">
+        %
+      </button>
+      <button data-operator="/" class="btn-calc bg-fuchsia-600/80 text-white hover:bg-fuchsia-600 active:bg-fuchsia-700 shadow-lg shadow-fuchsia-600/20 p-4 rounded-2xl font-bold text-xl flex items-center justify-center">
+        ÷
+      </button>
+
+      <!-- Linha 2 -->
+      <button data-number="7" class="btn-calc bg-pink-950/60 text-pink-100 hover:bg-pink-900/60 border border-pink-500/10 p-4 rounded-2xl font-semibold text-xl font-mono-custom">7</button>
+      <button data-number="8" class="btn-calc bg-pink-950/60 text-pink-100 hover:bg-pink-900/60 border border-pink-500/10 p-4 rounded-2xl font-semibold text-xl font-mono-custom">8</button>
+      <button data-number="9" class="btn-calc bg-pink-950/60 text-pink-100 hover:bg-pink-900/60 border border-pink-500/10 p-4 rounded-2xl font-semibold text-xl font-mono-custom">9</button>
+      <button data-operator="*" class="btn-calc bg-fuchsia-600/80 text-white hover:bg-fuchsia-600 active:bg-fuchsia-700 shadow-lg shadow-fuchsia-600/20 p-4 rounded-2xl font-bold text-xl flex items-center justify-center">
+        ×
+      </button>
+
+      <!-- Linha 3 -->
+      <button data-number="4" class="btn-calc bg-pink-950/60 text-pink-100 hover:bg-pink-900/60 border border-pink-500/10 p-4 rounded-2xl font-semibold text-xl font-mono-custom">4</button>
+      <button data-number="5" class="btn-calc bg-pink-950/60 text-pink-100 hover:bg-pink-900/60 border border-pink-500/10 p-4 rounded-2xl font-semibold text-xl font-mono-custom">5</button>
+      <button data-number="6" class="btn-calc bg-pink-950/60 text-pink-100 hover:bg-pink-900/60 border border-pink-500/10 p-4 rounded-2xl font-semibold text-xl font-mono-custom">6</button>
+      <button data-operator="-" class="btn-calc bg-fuchsia-600/80 text-white hover:bg-fuchsia-600 active:bg-fuchsia-700 shadow-lg shadow-fuchsia-600/20 p-4 rounded-2xl font-bold text-xl flex items-center justify-center">
+        −
+      </button>
+
+      <!-- Linha 4 -->
+      <button data-number="1" class="btn-calc bg-pink-950/60 text-pink-100 hover:bg-pink-900/60 border border-pink-500/10 p-4 rounded-2xl font-semibold text-xl font-mono-custom">1</button>
+      <button data-number="2" class="btn-calc bg-pink-950/60 text-pink-100 hover:bg-pink-900/60 border border-pink-500/10 p-4 rounded-2xl font-semibold text-xl font-mono-custom">2</button>
+      <button data-number="3" class="btn-calc bg-pink-950/60 text-pink-100 hover:bg-pink-900/60 border border-pink-500/10 p-4 rounded-2xl font-semibold text-xl font-mono-custom">3</button>
+      <button data-operator="+" class="btn-calc bg-fuchsia-600/80 text-white hover:bg-fuchsia-600 active:bg-fuchsia-700 shadow-lg shadow-fuchsia-600/20 p-4 rounded-2xl font-bold text-xl flex items-center justify-center">
+        +
+      </button>
+
+      <!-- Linha 5 -->
+      <button data-number="0" class="btn-calc bg-pink-950/60 text-pink-100 hover:bg-pink-900/60 border border-pink-500/10 p-4 rounded-2xl font-semibold text-xl font-mono-custom col-span-2">0</button>
+      <button data-action="decimal" class="btn-calc bg-pink-950/60 text-pink-100 hover:bg-pink-900/60 border border-pink-500/10 p-4 rounded-2xl font-bold text-xl font-mono-custom">.</button>
+      <button data-action="calculate" class="btn-calc bg-gradient-to-r from-pink-500 to-fuchsia-600 text-white hover:from-pink-400 hover:to-fuchsia-500 active:from-pink-600 active:to-fuchsia-700 p-4 rounded-2xl font-extrabold text-2xl shadow-lg shadow-pink-500/30 flex items-center justify-center">
+        =
+      </button>
+    </div>
+  </div>
+
+  <script>
+    // Inicializar ícones do Lucide
+    lucide.createIcons();
+
+    // Elementos da Interface
+    const displayElement = document.getElementById('display');
+    const historyElement = document.getElementById('history');
+
+    // Variáveis de Estado Interno
+    let currentInput = '0';
+    let previousInput = '';
+    let operator = null;
+    let shouldResetDisplay = false;
+
+    // Converte operadores internos em símbolos visuais
+    function getSymbol(op) {
+      const symbolMap = { '*': '×', '/': '÷', '+': '+', '-': '−' };
+      return symbolMap[op] || op;
+    }
+
+    // Atualiza a tela da calculadora
+    function updateDisplay() {
+      displayElement.textContent = currentInput;
+      if (operator !== null) {
+        historyElement.textContent = `${previousInput} ${getSymbol(operator)}`;
+      } else {
+        historyElement.textContent = previousInput;
+      }
+    }
+
+    // Adiciona números
+    function appendNumber(number) {
+      if (currentInput === '0' || shouldResetDisplay) {
+        currentInput = number;
+        shouldResetDisplay = false;
+      } else {
+        if (currentInput.length < 12) {
+          currentInput += number;
+        }
+      }
+      updateDisplay();
+    }
+
+    // Adiciona ponto decimal
+    function appendDecimal() {
+      if (shouldResetDisplay) {
+        currentInput = '0.';
+        shouldResetDisplay = false;
+        updateDisplay();
+        return;
+      }
+      if (!currentInput.includes('.')) {
+        currentInput += '.';
+        updateDisplay();
+      }
+    }
+
+    // Seleciona operador
+    function chooseOperator(op) {
+      if (operator !== null && !shouldResetDisplay) {
+        calculate();
+      }
+      previousInput = currentInput;
+      operator = op;
+      shouldResetDisplay = true;
+      updateDisplay();
+    }
+
+    // Porcentagem
+    function calculatePercent() {
+      const current = parseFloat(currentInput);
+      if (isNaN(current)) return;
+      currentInput = (current / 100).toString();
+      updateDisplay();
+    }
+
+    // Executa a operação matemática
+    function calculate() {
+      let result;
+      const prev = parseFloat(previousInput);
+      const current = parseFloat(currentInput);
+
+      if (isNaN(prev) || isNaN(current)) return;
+
+      switch (operator) {
+        case '+':
+          result = prev + current;
+          break;
+        case '-':
+          result = prev - current;
+          break;
+        case '*':
+          result = prev * current;
+          break;
+        case '/':
+          if (current === 0) {
+            currentInput = 'Erro';
+            operator = null;
+            previousInput = '';
+            shouldResetDisplay = true;
+            updateDisplay();
+            return;
+          }
+          result = prev / current;
+          break;
+        default:
+          return;
+      }
+
+      // Prevenção de erros de ponto flutuante (ex: 0.1 + 0.2)
+      currentInput = (Math.round(result * 1e8) / 1e8).toString();
+      historyElement.textContent = `${previousInput} ${getSymbol(operator)} ${current} =`;
+      previousInput = '';
+      operator = null;
+      shouldResetDisplay = true;
+      updateDisplay();
+    }
+
+    // Limpar tudo
+    function clearAll() {
+      currentInput = '0';
+      previousInput = '';
+      operator = null;
+      shouldResetDisplay = false;
+      historyElement.textContent = '';
+      updateDisplay();
+    }
+
+    // Apagar último dígito
+    function backspace() {
+      if (shouldResetDisplay) return;
+      if (currentInput.length === 1 || (currentInput.length === 2 && currentInput.startsWith('-'))) {
+        currentInput = '0';
+      } else {
+        currentInput = currentInput.slice(0, -1);
+      }
+      updateDisplay();
+    }
+
+    // Efeito de feedback visual para o teclado
+    function triggerButtonAnimation(selector) {
+      const btn = document.querySelector(selector);
+      if (btn) {
+        btn.classList.add('btn-active');
+        setTimeout(() => btn.classList.remove('btn-active'), 120);
+      }
+    }
+
+    // Eventos nos botões da tela
+    document.querySelectorAll('.btn-calc').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const number = btn.getAttribute('data-number');
+        const op = btn.getAttribute('data-operator');
+        const action = btn.getAttribute('data-action');
+
+        if (number !== null) appendNumber(number);
+        if (op !== null) chooseOperator(op);
+
+        if (action === 'clear') clearAll();
+        if (action === 'backspace') backspace();
+        if (action === 'percent') calculatePercent();
+        if (action === 'decimal') appendDecimal();
+        if (action === 'calculate') calculate();
+      });
+    });
+
+    // Eventos do teclado físico
+    window.addEventListener('keydown', (e) => {
+      if (e.key >= '0' && e.key <= '9') {
+        appendNumber(e.key);
+        triggerButtonAnimation(`[data-number="${e.key}"]`);
+      }
+      if (e.key === '.' || e.key === ',') {
+        appendDecimal();
+        triggerButtonAnimation('[data-action="decimal"]');
+      }
+      if (['+', '-', '*', '/'].includes(e.key)) {
+        chooseOperator(e.key);
+        triggerButtonAnimation(`[data-operator="${e.key}"]`);
+      }
+      if (e.key === 'Enter' || e.key === '=') {
+        e.preventDefault();
+        calculate();
+        triggerButtonAnimation('[data-action="calculate"]');
+      }
+      if (e.key === 'Backspace') {
+        backspace();
+        triggerButtonAnimation('[data-action="backspace"]');
+      }
+      if (e.key === 'Escape') {
+        clearAll();
+        triggerButtonAnimation('[data-action="clear"]');
+      }
+    });
+  </script>
+</body>
+</html>
